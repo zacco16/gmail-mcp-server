@@ -17,7 +17,6 @@ interface ListMessagesArgs {
   maxResults?: number;
   labelIds?: string[];
   query?: string;
-  verbose?: boolean;
 }
 
 interface ReadMessageArgs {
@@ -31,12 +30,10 @@ const oauth2Client = new OAuth2Client(
   process.env.REDIRECT_URI
 );
 
-// Set credentials with refresh token
 oauth2Client.setCredentials({
   refresh_token: process.env.GOOGLE_REFRESH_TOKEN
 });
 
-// Initialize Gmail API
 const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
 // Server definition
@@ -52,53 +49,8 @@ const server = new Server(
   }
 );
 
-// Tool definitions
-const LIST_MESSAGES_TOOL = {
-  name: "list",
-  description: "List Gmail messages",
-  inputSchema: {
-    type: "object",
-    properties: {
-      maxResults: {
-        type: "number",
-        description: "Maximum number of messages to return (default: 10)"
-      },
-      labelIds: {
-        type: "array",
-        items: {
-          type: "string"
-        },
-        description: "Label IDs to filter by (e.g., ['INBOX'])"
-      },
-      query: {
-        type: "string",
-        description: "Gmail search query (e.g., 'in:inbox', 'is:unread')"
-      },
-      verbose: {
-        type: "boolean",
-        description: "Whether to show full message details (default: false)"
-      }
-    }
-  }
-};
-
-const READ_MESSAGE_TOOL = {
-  name: "read",
-  description: "Read a specific Gmail message",
-  inputSchema: {
-    type: "object",
-    properties: {
-      messageId: {
-        type: "string",
-        description: "ID of the message to read"
-      }
-    },
-    required: ["messageId"]
-  }
-};
-
 // Tool handlers
-async function listMessages({ maxResults = 10, labelIds, query, verbose = false }: ListMessagesArgs) {
+async function listMessages({ maxResults = 10, labelIds, query }: ListMessagesArgs) {
   try {
     const response = await gmail.users.messages.list({
       userId: 'me',
@@ -116,32 +68,21 @@ async function listMessages({ maxResults = 10, labelIds, query, verbose = false 
         });
         return {
           id: detail.data.id,
-          subject: detail.data.payload?.headers?.find(h => h.name?.toLowerCase() === 'subject')?.value || '(no subject)',
-          from: detail.data.payload?.headers?.find(h => h.name?.toLowerCase() === 'from')?.value,
-          snippet: detail.data.snippet
+          snippet: detail.data.snippet,
+          subject: detail.data.payload?.headers?.find(h => h.name?.toLowerCase() === 'subject')?.value,
+          from: detail.data.payload?.headers?.find(h => h.name?.toLowerCase() === 'from')?.value
         };
       })
     );
 
-    if (verbose) {
-      return {
-        content: [{ 
-          type: "text", 
-          text: messageDetails.map(msg => 
-            `ID: ${msg.id}\nFrom: ${msg.from}\nSubject: ${msg.subject}\nSnippet: ${msg.snippet}\n`
-          ).join('\n---\n')
-        }]
-      };
-    } else {
-      return {
-        content: [{ 
-          type: "text", 
-          text: messageDetails.map((msg, index) => 
-            `${index + 1}. ${msg.subject} (ID: ${msg.id})`
-          ).join('\n')
-        }]
-      };
-    }
+    return {
+      content: [{ 
+        type: "text", 
+        text: messageDetails.map(msg => 
+          `ID: ${msg.id}\nFrom: ${msg.from}\nSubject: ${msg.subject}\nSnippet: ${msg.snippet}\n`
+        ).join('\n---\n')
+      }]
+    };
   } catch (error) {
     console.error('List messages error:', error);
     throw error;
@@ -159,7 +100,6 @@ async function readMessage({ messageId }: ReadMessageArgs) {
   const from = headers?.find(h => h.name?.toLowerCase() === 'from')?.value;
   const date = headers?.find(h => h.name?.toLowerCase() === 'date')?.value;
 
-  // Get message body
   let body = '';
   if (response.data.payload?.body?.data) {
     body = Buffer.from(response.data.payload.body.data, 'base64').toString('utf-8');
@@ -180,29 +120,96 @@ async function readMessage({ messageId }: ReadMessageArgs) {
   };
 }
 
+async function listLabels() {
+  try {
+    const response = await gmail.users.labels.list({
+      userId: 'me'
+    });
+    
+    const labels = response.data.labels || [];
+    return {
+      content: [{ 
+        type: "text", 
+        text: labels.map(label => 
+          `${label.id}: ${label.name} (${label.type})`
+        ).join('\n')
+      }]
+    };
+  } catch (error) {
+    console.error('List labels error:', error);
+    throw error;
+  }
+}
+
+// Tool definitions
+const tools = {
+  list: {
+    name: "list",
+    description: "List Gmail messages",
+    handler: listMessages,
+    inputSchema: {
+      type: "object",
+      properties: {
+        maxResults: {
+          type: "number",
+          description: "Maximum number of messages to return (default: 10)"
+        },
+        labelIds: {
+          type: "array",
+          items: {
+            type: "string"
+          },
+          description: "Label IDs to filter by (e.g., ['INBOX'])"
+        },
+        query: {
+          type: "string",
+          description: "Gmail search query (e.g., 'in:inbox', 'is:unread')"
+        }
+      }
+    }
+  },
+  read: {
+    name: "read",
+    description: "Read a specific Gmail message",
+    handler: readMessage,
+    inputSchema: {
+      type: "object",
+      properties: {
+        messageId: {
+          type: "string",
+          description: "ID of the message to read"
+        }
+      },
+      required: ["messageId"]
+    }
+  },
+  listLabels: {
+    name: "listLabels",
+    description: "List all available Gmail labels",
+    handler: listLabels,
+    inputSchema: {
+      type: "object",
+      properties: {}
+    }
+  }
+};
+
 // Register tools
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [LIST_MESSAGES_TOOL, READ_MESSAGE_TOOL]
+  tools: Object.values(tools)
 }));
 
 // Handle tool calls
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     const { name, arguments: args = {} } = request.params;
-
-    switch (name) {
-      case "list":
-        return await listMessages(args as ListMessagesArgs);
-      case "read": {
-        // Check for messageId before type assertion
-        if (typeof args?.messageId !== 'string') {
-          throw new Error("messageId is required and must be a string");
-        }
-        return await readMessage({ messageId: args.messageId });
-      }
-      default:
-        throw new Error(`Unknown tool: ${name}`);
+    const tool = tools[name as keyof typeof tools];
+    
+    if (!tool) {
+      throw new Error(`Unknown tool: ${name}`);
     }
+
+    return await tool.handler(args);
   } catch (error) {
     console.error('Tool call error:', error);
     return {
