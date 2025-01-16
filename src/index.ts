@@ -24,6 +24,24 @@ interface ReadMessageArgs {
   messageId: string;
 }
 
+interface DraftEmailArgs extends Record<string, unknown> {
+  to: string[];
+  cc?: string[];
+  bcc?: string[];
+  subject: string;
+  body: string;
+  isHtml?: boolean;
+}
+
+interface SendEmailArgs extends DraftEmailArgs {
+  draftId?: string;
+}
+
+interface EmailValidationResult {
+  valid: boolean;
+  error?: string;
+}
+
 // Initialize OAuth client
 const oauth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -97,6 +115,162 @@ const READ_MESSAGE_TOOL = {
   }
 };
 
+const DRAFT_EMAIL_TOOL = {
+  name: "draft",
+  description: "Create a Gmail draft message",
+  inputSchema: {
+    type: "object",
+    properties: {
+      to: {
+        type: "array",
+        items: { type: "string" },
+        description: "Array of recipient email addresses"
+      },
+      cc: {
+        type: "array",
+        items: { type: "string" },
+        description: "Array of CC recipient email addresses"
+      },
+      bcc: {
+        type: "array",
+        items: { type: "string" },
+        description: "Array of BCC recipient email addresses"
+      },
+      subject: {
+        type: "string",
+        description: "Email subject line"
+      },
+      body: {
+        type: "string",
+        description: "Email body content"
+      },
+      isHtml: {
+        type: "boolean",
+        description: "Whether body content is HTML (default: false)"
+      }
+    },
+    required: ["to", "subject", "body"]
+  }
+};
+
+const SEND_EMAIL_TOOL = {
+  name: "send",
+  description: "Send a Gmail message",
+  inputSchema: {
+    type: "object",
+    properties: {
+      to: {
+        type: "array",
+        items: { type: "string" },
+        description: "Array of recipient email addresses"
+      },
+      cc: {
+        type: "array",
+        items: { type: "string" },
+        description: "Array of CC recipient email addresses"
+      },
+      bcc: {
+        type: "array",
+        items: { type: "string" },
+        description: "Array of BCC recipient email addresses"
+      },
+      subject: {
+        type: "string",
+        description: "Email subject line"
+      },
+      body: {
+        type: "string",
+        description: "Email body content"
+      },
+      isHtml: {
+        type: "boolean",
+        description: "Whether body content is HTML (default: false)"
+      },
+      draftId: {
+        type: "string",
+        description: "ID of draft email to send (optional)"
+      }
+    },
+    required: ["to", "subject", "body"]
+  }
+};
+
+// Helper functions
+function validateEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function validateEmailArgs(args: DraftEmailArgs): EmailValidationResult {
+  const MAX_RECIPIENTS = 500;
+  const MAX_MESSAGE_SIZE = 25 * 1024 * 1024; // 25MB
+
+  const allRecipients = [
+    ...(args.to || []),
+    ...(args.cc || []),
+    ...(args.bcc || [])
+  ];
+
+  if (allRecipients.length > MAX_RECIPIENTS) {
+    return {
+      valid: false,
+      error: `Too many recipients. Maximum is ${MAX_RECIPIENTS}`
+    };
+  }
+
+  for (const email of allRecipients) {
+    if (!validateEmail(email)) {
+      return {
+        valid: false,
+        error: `Invalid email format: ${email}`
+      };
+    }
+  }
+
+  const messageSize = Buffer.from(args.body).length;
+  if (messageSize > MAX_MESSAGE_SIZE) {
+    return {
+      valid: false,
+      error: 'Message size exceeds 25MB limit'
+    };
+  }
+
+  return { valid: true };
+}
+
+function createRawMessage(args: DraftEmailArgs): string {
+  const headers = [
+    `To: ${args.to.join(', ')}`,
+    args.cc?.length ? `Cc: ${args.cc.join(', ')}` : null,
+    args.bcc?.length ? `Bcc: ${args.bcc.join(', ')}` : null,
+    `Subject: ${args.subject}`,
+    `Content-Type: ${args.isHtml ? 'text/html' : 'text/plain'}; charset=utf-8`,
+  ].filter(Boolean).join('\r\n');
+
+  const email = `${headers}\r\n\r\n${args.body}`;
+  return Buffer.from(email).toString('base64url');
+}
+
+// Type guards
+function isDraftEmailArgs(args: Record<string, unknown>): args is DraftEmailArgs {
+  const a = args as Partial<DraftEmailArgs>;
+  return (
+    Array.isArray(a.to) &&
+    a.to.length > 0 &&
+    typeof a.subject === 'string' &&
+    typeof a.body === 'string' &&
+    (a.cc === undefined || Array.isArray(a.cc)) &&
+    (a.bcc === undefined || Array.isArray(a.bcc)) &&
+    (a.isHtml === undefined || typeof a.isHtml === 'boolean')
+  );
+}
+
+function isSendEmailArgs(args: Record<string, unknown>): args is SendEmailArgs {
+  return (
+    isDraftEmailArgs(args) &&
+    (args.draftId === undefined || typeof args.draftId === 'string')
+  );
+}
+
 // Tool handlers
 async function listMessages({ maxResults = 10, labelIds, query, verbose = false }: ListMessagesArgs) {
   try {
@@ -159,7 +333,6 @@ async function readMessage({ messageId }: ReadMessageArgs) {
   const from = headers?.find(h => h.name?.toLowerCase() === 'from')?.value;
   const date = headers?.find(h => h.name?.toLowerCase() === 'date')?.value;
 
-  // Get message body
   let body = '';
   if (response.data.payload?.body?.data) {
     body = Buffer.from(response.data.payload.body.data, 'base64').toString('utf-8');
@@ -180,9 +353,77 @@ async function readMessage({ messageId }: ReadMessageArgs) {
   };
 }
 
+async function draftEmail(args: DraftEmailArgs) {
+  try {
+    const validation = validateEmailArgs(args);
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+
+    const message = await gmail.users.drafts.create({
+      userId: 'me',
+      requestBody: {
+        message: {
+          raw: createRawMessage(args)
+        }
+      }
+    });
+
+    return {
+      content: [{
+        type: "text",
+        text: `Draft created with ID: ${message.data.id || 'unknown'}`
+      }]
+    };
+  } catch (error) {
+    console.error('Draft email error:', error);
+    throw error;
+  }
+}
+
+async function sendEmail(args: SendEmailArgs) {
+  try {
+    if (args.draftId) {
+      const message = await gmail.users.drafts.send({
+        userId: 'me',
+        requestBody: {
+          id: args.draftId
+        }
+      });
+      return {
+        content: [{
+          type: "text",
+          text: `Draft sent with message ID: ${message.data.id}`
+        }]
+      };
+    } else {
+      const validation = validateEmailArgs(args);
+      if (!validation.valid) {
+        throw new Error(validation.error);
+      }
+
+      const message = await gmail.users.messages.send({
+        userId: 'me',
+        requestBody: {
+          raw: createRawMessage(args)
+        }
+      });
+      return {
+        content: [{
+          type: "text",
+          text: `Message sent with ID: ${message.data.id}`
+        }]
+      };
+    }
+  } catch (error) {
+    console.error('Send email error:', error);
+    throw error;
+  }
+}
+
 // Register tools
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [LIST_MESSAGES_TOOL, READ_MESSAGE_TOOL]
+  tools: [LIST_MESSAGES_TOOL, READ_MESSAGE_TOOL, DRAFT_EMAIL_TOOL, SEND_EMAIL_TOOL]
 }));
 
 // Handle tool calls
@@ -194,11 +435,22 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "list":
         return await listMessages(args as ListMessagesArgs);
       case "read": {
-        // Check for messageId before type assertion
         if (typeof args?.messageId !== 'string') {
           throw new Error("messageId is required and must be a string");
         }
         return await readMessage({ messageId: args.messageId });
+      }
+      case "draft": {
+        if (!isDraftEmailArgs(args)) {
+          throw new Error("Invalid draft email arguments. Required: to (array), subject (string), body (string)");
+        }
+        return await draftEmail(args);
+      }
+      case "send": {
+        if (!isSendEmailArgs(args)) {
+          throw new Error("Invalid send email arguments. Required: to (array), subject (string), body (string)");
+        }
+        return await sendEmail(args);
       }
       default:
         throw new Error(`Unknown tool: ${name}`);
