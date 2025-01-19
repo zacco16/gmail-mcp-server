@@ -23,5 +23,24 @@ export const SERVER_CONFIG = {
 
 // Default values
 export const DEFAULTS = {
-  LIST_MAX_RESULTS: 10
+  LIST_MAX_RESULTS: 10,
+  CALENDAR_MAX_RESULTS: 25,
+  DEFAULT_TIMEZONE: 'Australia/Brisbane',  // AEDT Brisbane as default
+  DATE_FORMAT: 'YYYY-MM-DD',
+  TIME_FORMAT: 'HH:mm:ss',
+  DATETIME_FORMAT: 'YYYY-MM-DDTHH:mm:ssZ'  // ISO 8601
+};
+
+// Calendar specific constants
+export const CALENDAR_CONSTANTS = {
+  MAX_ATTENDEES: 200,
+  MAX_FREE_BUSY_DAYS: 42,  // Maximum days for free/busy queries
+  MIN_EVENT_LENGTH: 1,     // Minimum event length in minutes
+  MAX_EVENT_LENGTH: 8760,  // Maximum event length in hours (1 year)
+  VALID_TIMEZONES: [
+    'Australia/Brisbane',
+    'Australia/Sydney',
+    'UTC'
+    // Add more as needed
+  ]
 };
