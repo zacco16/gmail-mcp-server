@@ -10,24 +10,31 @@ A Model Context Protocol (MCP) server implementation for Gmail API integration, 
   - Read specific emails with full content
   - Create and send new emails
   - Draft email management
+- **Calendar Operations**
+  - List upcoming calendar events
+  - Event filtering and search
+  - Timezone support
+  - iOS calendar sync support
   
 ### Search & Filtering
 - Gmail search query support
 - Label-based filtering
 - Customizable result limits
+- Calendar event search capabilities
 
 ### Security
 - Google OAuth2.0 integration
 - Secure credential management
 - Refresh token handling
+- Multi-scope authorization support
 
 ## Quick Start
 
 ### Prerequisites
 - Node.js (v14 or higher)
 - npm (v6 or higher)
-- Google Cloud Platform account with Gmail API enabled
-- OAuth 2.0 credentials
+- Google Cloud Platform account with Gmail and Calendar APIs enabled
+- OAuth 2.0 credentials with appropriate scopes
 
 ### Installation
 
@@ -120,12 +127,24 @@ send({
 })
 ```
 
+#### List Calendar Events
+```typescript
+listEvents({
+  maxResults?: number,    // Default: 25
+  timeMin?: string,       // Start time (ISO 8601)
+  timeMax?: string,       // End time (ISO 8601)
+  query?: string,         // Text search term
+  timeZone?: string      // Default: Australia/Brisbane
+})
+```
+
 ## Error Handling
 The server implements comprehensive error handling for:
 - Authentication failures
 - API rate limits
 - Invalid requests
 - Network issues
+- Calendar sync issues
 
 ## Contributing
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.

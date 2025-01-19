@@ -4,10 +4,12 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Gmail API scopes
+// Gmail API and Calendar API scopes
 export const SCOPES = [
   'https://www.googleapis.com/auth/gmail.readonly',
-  'https://www.googleapis.com/auth/gmail.modify'
+  'https://www.googleapis.com/auth/gmail.modify',
+  'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/calendar.events'
 ];
 
 // Initialize OAuth client
@@ -24,3 +26,6 @@ oauth2Client.setCredentials({
 
 // Initialize Gmail API
 export const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+// Initialize Calendar API
+export const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
