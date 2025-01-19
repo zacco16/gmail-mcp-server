@@ -13,6 +13,7 @@ export interface MessageDetails {
   from?: string;
   snippet?: string;
   isUnread: boolean;
+  labels: string[];  // Added labels field
 }
 
 export interface ReadMessageArgs {
@@ -27,7 +28,7 @@ export interface BaseEmailArgs {
   subject: string;
   body: string;
   isHtml?: boolean;
-  [key: string]: unknown;  // Index signature to satisfy Record<string, unknown>
+  [key: string]: unknown;
 }
 
 export interface DraftEmailArgs extends BaseEmailArgs {}

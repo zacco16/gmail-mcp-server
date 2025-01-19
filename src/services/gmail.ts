@@ -1,5 +1,5 @@
 import { gmail } from '../config/auth.js';
-import { EMAIL_CONSTANTS } from '../config/constants.js';
+import { EMAIL_CONSTANTS, GMAIL_LABELS } from '../config/constants.js';
 import {
   ListMessagesArgs,
   ReadMessageArgs,
@@ -69,8 +69,11 @@ export class GmailService {
 
   static async listMessages({ maxResults = 10, labelIds = [], query, verbose = false, unreadOnly = false }: ListMessagesArgs): Promise<MessageResponse> {
     try {
-      // Add UNREAD label if unreadOnly is true
-      const finalLabelIds = unreadOnly ? [...labelIds, 'UNREAD'] : labelIds;
+      // When unreadOnly is true, ensure we include both UNREAD and INBOX labels
+      let finalLabelIds = [...labelIds];
+      if (unreadOnly) {
+        finalLabelIds = [...new Set([...finalLabelIds, GMAIL_LABELS.UNREAD, GMAIL_LABELS.INBOX])];
+      }
 
       const response = await gmail.users.messages.list({
         userId: 'me',
@@ -97,7 +100,8 @@ export class GmailService {
               (header: Schema$MessagePartHeader) => header.name?.toLowerCase() === 'from'
             )?.value,
             snippet: detail.data.snippet,
-            isUnread: labels.includes('UNREAD')
+            isUnread: labels.includes(GMAIL_LABELS.UNREAD),
+            labels: labels
           };
         })
       );
@@ -107,7 +111,7 @@ export class GmailService {
           content: [{ 
             type: "text", 
             text: messageDetails.map((msg) => 
-              `ID: ${msg.id}\nFrom: ${msg.from}\nSubject: ${msg.subject}\nStatus: ${msg.isUnread ? 'UNREAD' : 'READ'}\nSnippet: ${msg.snippet}\n`
+              `ID: ${msg.id}\nFrom: ${msg.from}\nSubject: ${msg.subject}\nStatus: ${msg.isUnread ? 'UNREAD' : 'READ'}\nLabels: ${msg.labels.join(', ')}\nSnippet: ${msg.snippet}\n`
             ).join('\n---\n')
           }]
         };

@@ -5,6 +5,16 @@ export const EMAIL_CONSTANTS = {
   EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 };
 
+// Gmail specific constants
+export const GMAIL_LABELS = {
+  INBOX: 'INBOX',
+  UNREAD: 'UNREAD',
+  SENT: 'SENT',
+  DRAFT: 'DRAFT',
+  SPAM: 'SPAM',
+  TRASH: 'TRASH'
+} as const;
+
 // Server configuration
 export const SERVER_CONFIG = {
   name: "gmail-mcp",
