@@ -43,11 +43,12 @@ export interface ReadEventArgs {
 // Create/Update event arguments
 export interface CreateEventArgs extends Omit<CalendarEvent, 'id' | 'created' | 'updated'> {
   sendNotifications?: boolean;
+  [key: string]: unknown;  // Index signature for string keys
 }
 
 export interface UpdateEventArgs extends Partial<CreateEventArgs> {
   eventId: string;
-  sendNotifications?: boolean;
+  [key: string]: unknown;  // Index signature for string keys
 }
 
 // Enums
@@ -79,9 +80,11 @@ export function isCreateEventArgs(args: Record<string, unknown>): args is Create
   return (
     typeof a.summary === 'string' &&
     a.start !== undefined &&
-    typeof a.start.dateTime === 'string' &&
+    'dateTime' in (a.start || {}) &&
+    typeof (a.start as EventDateTime).dateTime === 'string' &&
     a.end !== undefined &&
-    typeof a.end.dateTime === 'string' &&
+    'dateTime' in (a.end || {}) &&
+    typeof (a.end as EventDateTime).dateTime === 'string' &&
     (a.description === undefined || typeof a.description === 'string') &&
     (a.location === undefined || typeof a.location === 'string') &&
     (a.attendees === undefined || Array.isArray(a.attendees)) &&
@@ -90,14 +93,15 @@ export function isCreateEventArgs(args: Record<string, unknown>): args is Create
 }
 
 export function isUpdateEventArgs(args: Record<string, unknown>): args is UpdateEventArgs {
+  const a = args as Partial<UpdateEventArgs>;
   return (
-    typeof args.eventId === 'string' &&
-    (args.summary === undefined || typeof args.summary === 'string') &&
-    (args.description === undefined || typeof args.description === 'string') &&
-    (args.location === undefined || typeof args.location === 'string') &&
-    (args.start === undefined || (typeof args.start.dateTime === 'string')) &&
-    (args.end === undefined || (typeof args.end.dateTime === 'string')) &&
-    (args.attendees === undefined || Array.isArray(args.attendees)) &&
-    (args.timeZone === undefined || typeof args.timeZone === 'string')
+    typeof a.eventId === 'string' &&
+    (a.summary === undefined || typeof a.summary === 'string') &&
+    (a.description === undefined || typeof a.description === 'string') &&
+    (a.location === undefined || typeof a.location === 'string') &&
+    (a.start === undefined || ('dateTime' in (a.start || {}) && typeof (a.start as EventDateTime).dateTime === 'string')) &&
+    (a.end === undefined || ('dateTime' in (a.end || {}) && typeof (a.end as EventDateTime).dateTime === 'string')) &&
+    (a.attendees === undefined || Array.isArray(a.attendees)) &&
+    (a.timeZone === undefined || typeof a.timeZone === 'string')
   );
 }
