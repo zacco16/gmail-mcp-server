@@ -4,6 +4,15 @@ export interface ListMessagesArgs {
   labelIds?: string[];
   query?: string;
   verbose?: boolean;
+  unreadOnly?: boolean;
+}
+
+export interface MessageDetails {
+  id: string;
+  subject: string;
+  from?: string;
+  snippet?: string;
+  isUnread: boolean;
 }
 
 export interface ReadMessageArgs {
