@@ -1,12 +1,13 @@
 import { gmail } from '../config/auth.js';
-import { EMAIL_CONSTANTS } from '../config/constants.js';
+import { EMAIL_CONSTANTS, GMAIL_LABELS } from '../config/constants.js';
 import {
   ListMessagesArgs,
   ReadMessageArgs,
   DraftEmailArgs,
   SendEmailArgs,
   MessageResponse,
-  EmailValidationResult
+  EmailValidationResult,
+  MessageDetails
 } from '../types/gmail.js';
 import { gmail_v1 } from 'googleapis';
 
@@ -66,12 +67,18 @@ export class GmailService {
     return Buffer.from(email).toString('base64url');
   }
 
-  static async listMessages({ maxResults = 10, labelIds, query, verbose = false }: ListMessagesArgs): Promise<MessageResponse> {
+  static async listMessages({ maxResults = 10, labelIds = [], query, verbose = false, unreadOnly = false }: ListMessagesArgs): Promise<MessageResponse> {
     try {
+      // When unreadOnly is true, ensure we include both UNREAD and INBOX labels
+      let finalLabelIds = [...labelIds];
+      if (unreadOnly) {
+        finalLabelIds = [...new Set([...finalLabelIds, GMAIL_LABELS.UNREAD, GMAIL_LABELS.INBOX])];
+      }
+
       const response = await gmail.users.messages.list({
         userId: 'me',
         maxResults,
-        ...(labelIds && { labelIds }),
+        ...(finalLabelIds.length > 0 && { labelIds: finalLabelIds }),
         ...(query && { q: query })
       });
 
@@ -82,6 +89,8 @@ export class GmailService {
             userId: 'me',
             id: message.id!
           });
+
+          const labels = detail.data.labelIds || [];
           return {
             id: detail.data.id,
             subject: detail.data.payload?.headers?.find(
@@ -90,7 +99,9 @@ export class GmailService {
             from: detail.data.payload?.headers?.find(
               (header: Schema$MessagePartHeader) => header.name?.toLowerCase() === 'from'
             )?.value,
-            snippet: detail.data.snippet
+            snippet: detail.data.snippet,
+            isUnread: labels.includes(GMAIL_LABELS.UNREAD),
+            labels: labels
           };
         })
       );
@@ -100,7 +111,7 @@ export class GmailService {
           content: [{ 
             type: "text", 
             text: messageDetails.map((msg) => 
-              `ID: ${msg.id}\nFrom: ${msg.from}\nSubject: ${msg.subject}\nSnippet: ${msg.snippet}\n`
+              `ID: ${msg.id}\nFrom: ${msg.from}\nSubject: ${msg.subject}\nStatus: ${msg.isUnread ? 'UNREAD' : 'READ'}\nLabels: ${msg.labels.join(', ')}\nSnippet: ${msg.snippet}\n`
             ).join('\n---\n')
           }]
         };
@@ -109,7 +120,7 @@ export class GmailService {
           content: [{ 
             type: "text", 
             text: messageDetails.map((msg, i: number) => 
-              `${i + 1}. ${msg.subject} (ID: ${msg.id})`
+              `${i + 1}. ${msg.isUnread ? '[UNREAD] ' : ''}${msg.subject} (ID: ${msg.id})`
             ).join('\n')
           }]
         };

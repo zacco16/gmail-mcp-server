@@ -26,6 +26,10 @@ export const LIST_MESSAGES_TOOL = {
       verbose: {
         type: "boolean",
         description: "Whether to show full message details (default: false)"
+      },
+      unreadOnly: {
+        type: "boolean",
+        description: "Filter to show only unread messages (default: false)"
       }
     }
   }
