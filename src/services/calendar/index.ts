@@ -3,6 +3,7 @@ import { CALENDAR_CONSTANTS, DEFAULTS } from '../../config/constants.js';
 import { ListEventsArgs, ReadEventArgs, CalendarResponse } from '../../types/calendar.js';
 import { DateTime } from 'luxon';
 import { calendar_v3 } from 'googleapis';
+import { GaxiosError } from 'gaxios';
 
 type Schema$Event = calendar_v3.Schema$Event;
 
@@ -15,7 +16,6 @@ export class CalendarService {
     timeZone = DEFAULTS.DEFAULT_TIMEZONE 
   }: ListEventsArgs = {}): Promise<CalendarResponse> {
     try {
-      // Set default time range if not provided (now to 30 days from now)
       const now = DateTime.now().setZone(timeZone);
       const defaultTimeMin = now.toISO();
       const defaultTimeMax = now.plus({ days: 30 }).toISO();
@@ -32,30 +32,34 @@ export class CalendarService {
       } as calendar_v3.Params$Resource$Events$List);
 
       const events = response.data.items || [];
+      let output = '';
       
-      // Format events for display
-      const formattedEvents = events.map((event: Schema$Event) => {
+      for (const [index, event] of events.entries()) {
         const start = event.start?.dateTime || event.start?.date;
         const end = event.end?.dateTime || event.end?.date;
         const startDt = DateTime.fromISO(start || '', { zone: timeZone });
         const endDt = DateTime.fromISO(end || '', { zone: timeZone });
+        
+        output += `${index + 1}. ${event.summary || '(No title)'}`;
+        output += `\n   Event ID: ${event.id}`;
+        output += `\n   When: ${startDt.toLocaleString(DateTime.DATETIME_FULL)} to ${endDt.toLocaleString(DateTime.DATETIME_FULL)}`;
+        output += `\n   Status: ${event.status || 'unspecified'}`;
+        if (event.attendees?.length) {
+          output += `\n   Attendees: ${event.attendees.length}`;
+        }
+        if (event.recurringEventId) {
+          output += '\n   (Part of recurring series)';
+        }
+        output += '\n\n';
+      }
 
-        return {
-          id: event.id || '',
-          summary: event.summary || '(No title)',
-          start: startDt.toLocaleString(DateTime.DATETIME_FULL),
-          end: endDt.toLocaleString(DateTime.DATETIME_FULL),
-          attendees: event.attendees?.length || 0,
-          status: event.status || 'unspecified'
-        };
-      });
-
+      console.log('Found events:', events.length);
+      console.log('First event ID:', events[0]?.id);
+      
       return {
-        content: [{
+        content: [{ 
           type: "text",
-          text: formattedEvents.map((event, index: number) => 
-            `${index + 1}. ${event.summary}\n   When: ${event.start} to ${event.end}\n   Status: ${event.status}${event.attendees ? `\n   Attendees: ${event.attendees}` : ''}`
-          ).join('\n\n')
+          text: output.trim()
         }]
       };
 
@@ -82,25 +86,37 @@ export class CalendarService {
       const startDt = DateTime.fromISO(start || '', { zone: timeZone });
       const endDt = DateTime.fromISO(end || '', { zone: timeZone });
 
-      const formattedEvent = [
+      const details = [
+        `Event ID: ${event.id}`,
         `Summary: ${event.summary || '(No title)'}`,
         `When: ${startDt.toLocaleString(DateTime.DATETIME_FULL)} to ${endDt.toLocaleString(DateTime.DATETIME_FULL)}`,
         `Status: ${event.status || 'unspecified'}`,
         event.description ? `Description: ${event.description}` : null,
         event.location ? `Location: ${event.location}` : null,
         event.hangoutLink ? `Meeting Link: ${event.hangoutLink}` : null,
-        event.attendees?.length ? `Attendees: ${event.attendees.map(a => 
-          `${a.email}${a.responseStatus ? ` (${a.responseStatus})` : ''}`
-        ).join(', ')}` : null
+        event.recurringEventId ? 'Part of recurring series' : null,
+        event.creator?.email ? `Organizer: ${event.creator.email}` : null,
+        event.attendees?.length ? `Attendees:\n${event.attendees.map(a => 
+          `   - ${a.email}${a.responseStatus ? ` (${a.responseStatus})` : ''}`
+        ).join('\n')}` : null
       ].filter(Boolean).join('\n');
 
       return {
         content: [{
           type: "text",
-          text: formattedEvent
+          text: details
         }]
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof GaxiosError && error.response?.status === 404) {
+        return {
+          content: [{
+            type: "text",
+            text: `Event not found. The event may have been deleted or you may not have access to it.`
+          }],
+          isError: true
+        };
+      }
       console.error('Read event error:', error);
       throw error;
     }
