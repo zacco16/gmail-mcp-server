@@ -16,6 +16,11 @@ This is a Gmail Model Context Protocol (MCP) server implementation that enables 
 ### Core Services
 - **GmailService** (`src/services/gmail.ts`): Central service handling all Gmail operations
 - **CalendarService** (`src/services/calendar/index.ts`): Handles Google Calendar operations
+  - Event listing with full details
+  - Event reading with timezone support
+  - Formats human-readable outputs
+  - Handles timezone conversions via luxon
+  - Returns consistent response format
 - **Authentication** (`src/config/auth.ts`): OAuth2 setup and Google API initialization
 - **Constants** (`src/config/constants.ts`): Configuration values and constraints
 
@@ -24,7 +29,17 @@ This is a Gmail Model Context Protocol (MCP) server implementation that enables 
 - Read Message (`src/tools/read.ts`)
 - Draft Email (`src/tools/draft.ts`)
 - Send Email (`src/tools/send.ts`)
-- Calendar Events (`src/tools/calendar/list.ts`)
+- Calendar Events:
+  - List Events (`src/tools/calendar/list.ts`)
+    - Supports search and filtering
+    - Handles timezone conversions
+    - Shows event IDs for reference
+    - Includes status and timing
+  - Read Event Details (`src/tools/calendar/read.ts`)
+    - Full event information retrieval
+    - Supports timezone specification
+    - Includes organizer details
+    - Shows comprehensive event data
 
 ### Type System
 - Located in `src/types/gmail.ts` and `src/types/calendar.ts`
@@ -55,6 +70,10 @@ This is a Gmail Model Context Protocol (MCP) server implementation that enables 
    - Functionality implemented in CalendarService
    - Event handling and timezone support
    - iOS calendar sync considerations
+   - All events include unique IDs
+   - Times handled in ISO 8601 format
+   - Default timezone is Australia/Brisbane
+   - Consistent response formatting
 
 3. Configuration Updates:
    - New constants go in constants.ts
@@ -70,7 +89,8 @@ This is a Gmail Model Context Protocol (MCP) server implementation that enables 
 - Draft email editing capabilities needed
 - Testing framework to be implemented
 - Email configuration and signatures pending
-- Calendar integration in progress
+- Event creation and modification pending
+- Recurring events handling needed
 
 ## Development Guidelines
 1. Maintain type safety throughout
@@ -87,6 +107,9 @@ This is a Gmail Model Context Protocol (MCP) server implementation that enables 
 5. Calendar timezone conversions
 6. iOS calendar sync edge cases
 7. Event recurrence handling
+8. Event IDs must be preserved and visible in list output
+9. DateTime format consistency required
+10. Event details should be complete for iOS sync
 
 ## Testing Considerations
 - Unit tests pending implementation
