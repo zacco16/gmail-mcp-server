@@ -1,5 +1,5 @@
-import { GmailService } from '../../services/gmail.js';
-import { ReadMessageArgs, MessageResponse } from '../../types/gmail.js';
+import { readMessage } from '../../services/gmail/messages.js';
+import { ReadMessageArgs, MessageResponse } from '../../services/gmail/types.js';
 
 export const READ_MESSAGE_TOOL = {
   name: "read",
@@ -20,5 +20,5 @@ export async function handleReadMessage(args: Record<string, unknown>): Promise<
   if (typeof args?.messageId !== 'string') {
     throw new Error("messageId is required and must be a string");
   }
-  return await GmailService.readMessage({ messageId: args.messageId });
+  return await readMessage({ messageId: args.messageId });
 }

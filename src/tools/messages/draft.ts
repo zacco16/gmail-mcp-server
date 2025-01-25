@@ -1,5 +1,14 @@
-import { GmailService } from '../../services/gmail.js';
-import { DraftEmailArgs, isDraftEmailArgs, MessageResponse } from '../../types/gmail.js';
+import { draftEmail } from '../../services/gmail/drafts.js';
+import { DraftEmailArgs, MessageResponse } from '../../services/gmail/types.js';
+
+// Type guard function with corrected type predicate
+function isDraftEmailArgs(args: unknown): args is DraftEmailArgs {
+  if (typeof args !== 'object' || args === null) return false;
+  const a = args as any;
+  return Array.isArray(a.to) && 
+         typeof a.subject === 'string' && 
+         typeof a.body === 'string';
+}
 
 export const DRAFT_EMAIL_TOOL = {
   name: "draft",
@@ -43,5 +52,5 @@ export async function handleDraftEmail(args: Record<string, unknown>): Promise<M
   if (!isDraftEmailArgs(args)) {
     throw new Error("Invalid draft email arguments. Required: to (array), subject (string), body (string)");
   }
-  return await GmailService.draftEmail(args);
+  return await draftEmail(args);
 }

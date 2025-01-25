@@ -1,5 +1,14 @@
-import { GmailService } from '../../services/gmail.js';
-import { isSendEmailArgs, MessageResponse } from '../../types/gmail.js';
+import { sendEmail } from '../../services/gmail/send.js';
+import { SendEmailArgs, MessageResponse } from '../../services/gmail/types.js';
+
+// Type guard function with corrected type predicate
+function isSendEmailArgs(args: unknown): args is SendEmailArgs {
+  if (typeof args !== 'object' || args === null) return false;
+  const a = args as any;
+  return Array.isArray(a.to) && 
+         typeof a.subject === 'string' && 
+         typeof a.body === 'string';
+}
 
 export const SEND_EMAIL_TOOL = {
   name: "send",
@@ -47,5 +56,5 @@ export async function handleSendEmail(args: Record<string, unknown>): Promise<Me
   if (!isSendEmailArgs(args)) {
     throw new Error("Invalid send email arguments. Required: to (array), subject (string), body (string)");
   }
-  return await GmailService.sendEmail(args);
+  return await sendEmail(args);
 }

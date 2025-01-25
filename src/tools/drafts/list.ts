@@ -1,5 +1,5 @@
-import { GmailService } from '../../services/gmail.js';
-import { ListDraftsArgs } from '../../types/gmail.js';
+import { listDrafts } from '../../services/gmail/drafts.js';
+import { ListDraftsArgs } from '../../services/gmail/types.js';
 import { DEFAULTS } from '../../config/constants.js';
 
 export const LIST_DRAFTS_TOOL = {
@@ -25,5 +25,5 @@ export const LIST_DRAFTS_TOOL = {
 };
 
 export async function handleListDrafts(args: ListDraftsArgs = { maxResults: DEFAULTS.LIST_MAX_RESULTS }) {
-  return await GmailService.listDrafts(args);
+  return await listDrafts(args);
 }

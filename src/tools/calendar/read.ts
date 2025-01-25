@@ -1,5 +1,5 @@
-import { CalendarService } from '../../services/calendar/index.js';
-import { ReadEventArgs } from '../../types/calendar.js';
+import { readEvent } from '../../services/calendar/events.js';
+import { ReadEventArgs } from '../../services/calendar/types.js';
 import { DEFAULTS } from '../../config/constants.js';
 
 export const READ_EVENT_TOOL = {
@@ -26,7 +26,7 @@ export async function handleReadEvent(args: Record<string, unknown>) {
   if (typeof eventId !== 'string') {
     throw new Error('eventId is required and must be a string');
   }
-  return await CalendarService.readEvent({ 
+  return await readEvent({ 
     eventId, 
     timeZone: typeof timeZone === 'string' ? timeZone : undefined 
   });
