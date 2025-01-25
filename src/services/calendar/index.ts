@@ -1,6 +1,6 @@
 import { calendar } from '../../config/auth.js';
 import { CALENDAR_CONSTANTS, DEFAULTS } from '../../config/constants.js';
-import { ListEventsArgs, CalendarResponse } from '../../types/calendar.js';
+import { ListEventsArgs, ReadEventArgs, CalendarResponse } from '../../types/calendar.js';
 import { DateTime } from 'luxon';
 import { calendar_v3 } from 'googleapis';
 
@@ -61,6 +61,47 @@ export class CalendarService {
 
     } catch (error) {
       console.error('List events error:', error);
+      throw error;
+    }
+  }
+
+  static async readEvent({ 
+    eventId, 
+    timeZone = DEFAULTS.DEFAULT_TIMEZONE 
+  }: ReadEventArgs): Promise<CalendarResponse> {
+    try {
+      const response = await calendar.events.get({
+        calendarId: 'primary',
+        eventId,
+        timeZone
+      });
+
+      const event = response.data;
+      const start = event.start?.dateTime || event.start?.date;
+      const end = event.end?.dateTime || event.end?.date;
+      const startDt = DateTime.fromISO(start || '', { zone: timeZone });
+      const endDt = DateTime.fromISO(end || '', { zone: timeZone });
+
+      const formattedEvent = [
+        `Summary: ${event.summary || '(No title)'}`,
+        `When: ${startDt.toLocaleString(DateTime.DATETIME_FULL)} to ${endDt.toLocaleString(DateTime.DATETIME_FULL)}`,
+        `Status: ${event.status || 'unspecified'}`,
+        event.description ? `Description: ${event.description}` : null,
+        event.location ? `Location: ${event.location}` : null,
+        event.hangoutLink ? `Meeting Link: ${event.hangoutLink}` : null,
+        event.attendees?.length ? `Attendees: ${event.attendees.map(a => 
+          `${a.email}${a.responseStatus ? ` (${a.responseStatus})` : ''}`
+        ).join(', ')}` : null
+      ].filter(Boolean).join('\n');
+
+      return {
+        content: [{
+          type: "text",
+          text: formattedEvent
+        }]
+      };
+    } catch (error) {
+      console.error('Read event error:', error);
       throw error;
     }
   }
