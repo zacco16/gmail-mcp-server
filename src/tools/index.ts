@@ -1,7 +1,7 @@
-import { LIST_MESSAGES_TOOL, handleListMessages } from './list.js';
-import { READ_MESSAGE_TOOL, handleReadMessage } from './read.js';
-import { DRAFT_EMAIL_TOOL, handleDraftEmail } from './draft.js';
-import { SEND_EMAIL_TOOL, handleSendEmail } from './send.js';
+import { LIST_MESSAGES_TOOL, handleListMessages } from './messages/list.js';
+import { READ_MESSAGE_TOOL, handleReadMessage } from './messages/read.js';
+import { DRAFT_EMAIL_TOOL, handleDraftEmail } from './messages/draft.js';
+import { SEND_EMAIL_TOOL, handleSendEmail } from './messages/send.js';
 import { LIST_EVENTS_TOOL, handleListEvents } from './calendar/list.js';
 import { READ_EVENT_TOOL, handleReadEvent } from './calendar/read.js';
 import { LIST_DRAFTS_TOOL, handleListDrafts } from './drafts/list.js';
@@ -13,7 +13,7 @@ export const TOOLS = [
   SEND_EMAIL_TOOL,
   LIST_EVENTS_TOOL,
   READ_EVENT_TOOL,
-  LIST_DRAFTS_TOOL  // Added new tool
+  LIST_DRAFTS_TOOL
 ];
 
 export const TOOL_HANDLERS: Record<string, (args: Record<string, unknown>) => Promise<any>> = {
@@ -23,5 +23,5 @@ export const TOOL_HANDLERS: Record<string, (args: Record<string, unknown>) => Pr
   [SEND_EMAIL_TOOL.name]: handleSendEmail,
   [LIST_EVENTS_TOOL.name]: handleListEvents,
   [READ_EVENT_TOOL.name]: handleReadEvent,
-  [LIST_DRAFTS_TOOL.name]: handleListDrafts  // Added new handler
+  [LIST_DRAFTS_TOOL.name]: handleListDrafts
 };

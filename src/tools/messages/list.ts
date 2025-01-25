@@ -1,6 +1,6 @@
-import { GmailService } from '../services/gmail.js';
-import { ListMessagesArgs } from '../types/gmail.js';
-import { DEFAULTS } from '../config/constants.js';
+import { GmailService } from '../../services/gmail.js';
+import { ListMessagesArgs } from '../../types/gmail.js';
+import { DEFAULTS } from '../../config/constants.js';
 
 export const LIST_MESSAGES_TOOL = {
   name: "list",

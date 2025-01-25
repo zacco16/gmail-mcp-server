@@ -1,5 +1,5 @@
-import { GmailService } from '../services/gmail.js';
-import { DraftEmailArgs, isDraftEmailArgs, MessageResponse } from '../types/gmail.js';
+import { GmailService } from '../../services/gmail.js';
+import { DraftEmailArgs, isDraftEmailArgs, MessageResponse } from '../../types/gmail.js';
 
 export const DRAFT_EMAIL_TOOL = {
   name: "draft",

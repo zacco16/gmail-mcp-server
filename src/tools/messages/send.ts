@@ -1,5 +1,5 @@
-import { GmailService } from '../services/gmail.js';
-import { isSendEmailArgs, MessageResponse } from '../types/gmail.js';
+import { GmailService } from '../../services/gmail.js';
+import { isSendEmailArgs, MessageResponse } from '../../types/gmail.js';
 
 export const SEND_EMAIL_TOOL = {
   name: "send",

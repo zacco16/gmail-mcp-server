@@ -1,5 +1,5 @@
-import { GmailService } from '../services/gmail.js';
-import { ReadMessageArgs, MessageResponse } from '../types/gmail.js';
+import { GmailService } from '../../services/gmail.js';
+import { ReadMessageArgs, MessageResponse } from '../../types/gmail.js';
 
 export const READ_MESSAGE_TOOL = {
   name: "read",
