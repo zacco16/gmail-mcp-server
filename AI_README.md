@@ -1,71 +1,136 @@
 # AI Assistant Context Document
 
+## Filesystem Access
+The AI assistant has access to the local branch through the filesystem, typically located at:
+- Base path: `/users/zackonstas/projects/gmail-mcp-server`
+- Source code: `/users/zackonstas/projects/gmail-mcp-server/src`
+- Configuration: `/users/zackonstas/projects/gmail-mcp-server/.env`
+
+When reading or modifying files, use the filesystem paths relative to the project root.
+
 ## Project Overview
-This is a Model Context Protocol (MCP) server for Gmail and Calendar API integration, designed to enable AI assistants to interact with email and calendar services programmatically.
+A Model Context Protocol (MCP) server that enables AI assistants to interact with Gmail and Calendar services through a standardized, type-safe interface.
 
-## Comprehensive Documentation
-For full project details, feature list, and API interfaces, please refer to the main [README.md](README.md).
+## Key Components
 
-## AI-Specific Implementation Insights
+### Core Services Architecture
 
-### Core Design Principles
-- Modular, type-safe architecture
-- Consistent response formatting
-- Comprehensive error handling
-- Flexible parameter management
+#### GmailService (`src/services/gmail/*.ts`)
+- **Message Operations**
+  - List messages with advanced filtering
+  - Read specific message details
+  - Send emails
+  - Comprehensive email validation
 
-### Key Implementation Strategies
+- **Draft Management**
+  - Create new drafts
+  - List and read existing drafts
+  - Update draft content
+  - Delete drafts
+  - Preserve draft metadata
+  - Support HTML and plain text
 
-#### Service Layer
-- Abstracts complex API interactions
-- Provides unified interface for AI interactions
-- Handles authentication and token management
-- Normalizes response formats across different operations
+#### CalendarService (`src/services/calendar/index.ts`)
+- **Event Handling**
+  - Full event details retrieval
+  - Timezone conversion (via luxon)
+  - Consistent response formatting
+  - Event status and timing metadata
 
-#### Tools Layer
-- Provides granular, focused tool implementations
-- Supports partial updates and flexible inputs
-- Implements rigorous input validation
-- Offers comprehensive error handling
+#### Authentication (`src/config/auth.ts`)
+- OAuth2 setup
+- Google API initialization
+- Secure token management
+- Multi-scope authorization
 
-### Development Patterns
+#### Constants (`src/config/constants.ts`)
+- Configuration value definitions
+- API scope constraints
+- Default parameter settings
 
-#### Type Safety
-- Extensive use of TypeScript interfaces
-- Strict type checking for all inputs
-- Comprehensive type guards
-- Optional parameter handling
+### Tools Layer Implementation
 
-#### Error Handling
-- Consistent error response structures
+#### Message Tools (`src/tools/messages/`)
+- Granular operation handlers
+- Separate concerns for each email action
+- Consistent input validation
+- Wrapped service method calls
+
+#### Draft Management Tools (`src/tools/drafts/`)
+- Focused tool implementations
+  - List drafts with search/filter
+  - Read full draft content
+  - Partial update support
+  - Safe deletion mechanism
+- Preserves unmodified content
+- Handles HTML/plain text drafts
+
+#### Calendar Tools (`src/tools/calendar/`)
+- Event listing with advanced filtering
+- Timezone-aware event reading
+- Reference ID preservation
+- Comprehensive event data exposure
+
+### Type System Design
+- Located in `src/types/gmail.ts` and `src/types/calendar.ts`
+- Strict interface definitions
+- Type guard implementations
+- Comprehensive validation
+
+## Development Patterns
+
+### Error Handling Strategy
+- Uniform response interfaces
+- Pre-operation type validation
 - Detailed error messaging
-- Graceful degradation for partial failures
-- Comprehensive error scenario coverage
+- Graceful degradation
+- Specific error type handling
 
-### AI Interaction Considerations
-- Designed for predictable, repeatable interactions
-- Supports complex, multi-step workflows
-- Handles ambiguous or partial input scenarios
-- Provides clear, structured responses
+### Configuration Management
+- Environment-driven configuration
+- Secure credential handling
+- Explicit API scope definitions
+- Modular configuration approach
 
-### Watchouts for AI Assistants
-1. Always validate input parameters
-2. Handle optional parameters carefully
-3. Respect API rate limits
-4. Manage authentication tokens securely
-5. Provide clear, actionable error messages
+### Common Implementation Patterns
 
-### Testing Approach
+1. **Email Operations**
+   - Service method encapsulation
+   - Type-safe tool handlers
+   - Consistent validation logic
+
+2. **Calendar Operations**
+   - ISO 8601 time handling
+   - Default timezone (Australia/Brisbane)
+   - Consistent response formatting
+   - Unique ID preservation
+
+3. **Tool Modifications**
+   - Dual update (tool + handler)
+   - Type definition synchronization
+   - Registry updates
+
+## Key Implementation Watchouts
+
+1. OAuth refresh token management
+2. Gmail API rate limit handling
+3. Message size limitations
+4. Email address validation
+5. Timezone conversion complexity
+6. Calendar sync edge cases
+7. Content-Type handling
+
+## Testing Considerations
 - Comprehensive unit test coverage
-- Extensive mocking of external dependencies
+- Mock API response generation
 - Error scenario validation
-- Consistent test structure
+- Integration path testing
 
-## Implementation Notes
-- Supports OAuth2 authentication
-- Handles Gmail and Google Calendar APIs
-- Provides flexible, extensible architecture
-- Designed for AI-driven interactions
+## Development Guidelines
+1. Maintain strict type safety
+2. Follow established error patterns
+3. Keep documentation synchronized
+4. Consider cross-platform implications
+5. Prioritize modular design
 
-## Future Roadmap
-See [Backlog.md](Backlog.md) for planned enhancements and future considerations.
+This document tracks significant architectural patterns and implementation insights. Update with any substantial changes to project structure or design philosophy.
