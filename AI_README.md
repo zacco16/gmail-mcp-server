@@ -36,6 +36,11 @@ A Model Context Protocol (MCP) server that enables AI assistants to interact wit
   - Timezone conversion (via luxon)
   - Consistent response formatting
   - Event status and timing metadata
+  - Event creation with comprehensive validation
+    * Duration constraints
+    * Attendee management
+    * Timezone validation
+    * Notification support
 
 #### Authentication (`src/config/auth.ts`)
 - OAuth2 setup
@@ -68,6 +73,10 @@ A Model Context Protocol (MCP) server that enables AI assistants to interact wit
 #### Calendar Tools (`src/tools/calendar/`)
 - Event listing with advanced filtering
 - Timezone-aware event reading
+- Event creation tool with:
+  * Comprehensive input validation
+  * Flexible event configuration
+  * Error handling
 - Reference ID preservation
 - Comprehensive event data exposure
 
@@ -104,6 +113,7 @@ A Model Context Protocol (MCP) server that enables AI assistants to interact wit
    - Default timezone (Australia/Brisbane)
    - Consistent response formatting
    - Unique ID preservation
+   - Robust event creation validation
 
 3. **Tool Modifications**
    - Dual update (tool + handler)
@@ -119,12 +129,17 @@ A Model Context Protocol (MCP) server that enables AI assistants to interact wit
 5. Timezone conversion complexity
 6. Calendar sync edge cases
 7. Content-Type handling
+8. Event creation constraints
+   - Duration limits
+   - Attendee restrictions
+   - Timezone validations
 
 ## Testing Considerations
 - Comprehensive unit test coverage
 - Mock API response generation
 - Error scenario validation
 - Integration path testing
+- Extensive event creation test scenarios
 
 ## Development Guidelines
 1. Maintain strict type safety
@@ -132,5 +147,7 @@ A Model Context Protocol (MCP) server that enables AI assistants to interact wit
 3. Keep documentation synchronized
 4. Consider cross-platform implications
 5. Prioritize modular design
+6. Ensure robust input validation
+7. Handle edge cases comprehensively
 
 This document tracks significant architectural patterns and implementation insights. Update with any substantial changes to project structure or design philosophy.

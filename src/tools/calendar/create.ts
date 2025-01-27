@@ -53,9 +53,11 @@ export const CREATE_EVENT_TOOL = {
 };
 
 export async function handleCreateEvent(args: Record<string, unknown>) {
+  // Validate input using the type guard
   if (!isCreateEventArgs(args)) {
     throw new Error('Invalid create event arguments. Required: summary (string), start (object with dateTime), end (object with dateTime)');
   }
 
+  // Pass through the exact input to the service
   return await createEvent(args as CreateEventArgs);
 }
