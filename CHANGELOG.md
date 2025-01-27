@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-01-27
+
+### Added
+- Jest testing framework setup with TypeScript support
+- Initial test structure mirroring source code
+- Gmail service message listing tests
+- Test utilities for mocking Gmail and Calendar APIs
+- Testing documentation and guidelines
+
+### Changed
+- Updated project scripts to include test commands
+- Enhanced Node.js memory handling for tests
+
 ## [1.2.0] - 2025-01-27
 
 ### Changed
@@ -17,6 +30,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Breaking Changes
 - Email tool name changes require updates to any client implementations
 - Previous tool names are no longer supported
+
+## [1.1.1] - 2025-01-27
+
+### Added
+- Comprehensive draft message management functionality
+  - List drafts with search and filtering
+  - Read draft content with headers
+  - Update draft content and recipients
+  - Delete drafts safely
+- New Gmail service structure with modular organization
+
+### Changed
+- Restructured repository for better code organization
+  - Separated services into focused modules
+  - Reorganized tools by functionality
+  - Improved type definitions and validation
+- Enhanced documentation with detailed API examples
+- Standardized error handling across services
+
+### Fixed
+- Schema inconsistencies in API responses
+- Draft update content preservation issues
+- Various bugs in underlying functionality
 
 ## [1.1.0] - 2025-01-25
 
