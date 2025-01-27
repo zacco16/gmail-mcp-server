@@ -1,5 +1,6 @@
 import { gmail } from '../../config/auth.js';
 import { DraftEmailArgs, ListDraftsArgs, ReadDraftArgs, MessageResponse } from './types.js';
+import { DeleteDraftArgs } from '../../types/gmail.js';
 
 export async function draftEmail({ to, cc, bcc, subject, body, isHtml }: DraftEmailArgs): Promise<MessageResponse> {
   try {
@@ -110,6 +111,26 @@ export async function readDraft({ draftId }: ReadDraftArgs): Promise<MessageResp
 
   } catch (error) {
     console.error('Read draft error:', error);
+    throw error;
+  }
+}
+
+export async function deleteDraft({ draftId }: DeleteDraftArgs): Promise<MessageResponse> {
+  try {
+    await gmail.users.drafts.delete({
+      userId: 'me',
+      id: draftId
+    });
+
+    return {
+      content: [{
+        type: "text",
+        text: `Draft ${draftId} deleted successfully`
+      }]
+    };
+
+  } catch (error) {
+    console.error('Delete draft error:', error);
     throw error;
   }
 }
