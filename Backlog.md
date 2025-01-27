@@ -18,6 +18,7 @@
   - Calendar Tools
     - ✓ Test listEvents interface
     - ✓ Test readEvent functionality
+    - [ ] Test createEvent functionality
   - Draft Tools
     - ✓ Test listDrafts functionality
     - ✓ Test readDraft operations
@@ -35,6 +36,7 @@
   - Calendar Service
     - [ ] Event service tests
     - [ ] Timezone handling tests
+    - [ ] Event creation service tests
   - Error Handling Layer
     - [ ] API error scenarios
     - [ ] Rate limit handling
@@ -51,6 +53,7 @@
   - [ ] End-to-end email workflow tests
   - [ ] Draft creation to send workflow
   - [ ] Calendar event management tests
+    - [ ] Event creation test scenarios
   - [ ] Authentication flow validation
   - [ ] Rate limit recovery scenarios
 
@@ -68,8 +71,11 @@
   - [ ] Support for email signatures
   - [ ] Advanced filtering capabilities
 - Calendar Improvements
+  - [x] Create event functionality
   - [ ] Recurring event handling
   - [ ] Enhanced iOS calendar sync
+  - [ ] Event conflict detection
+  - [ ] Advanced attendee management
 - Authentication
   - [ ] Refresh token management improvements
   - [ ] Multi-account support

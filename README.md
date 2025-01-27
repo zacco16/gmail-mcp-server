@@ -18,6 +18,7 @@ A Model Context Protocol (MCP) server implementation for Gmail API integration, 
 - **Calendar Operations**
   - List upcoming calendar events
   - Read detailed event information
+  - Create new calendar events
   - Event filtering and search
   - Timezone support
   - iOS calendar sync support
@@ -183,6 +184,28 @@ listEvents({
 readEvent({
   eventId: string,       // Event ID to fetch details
   timeZone?: string     // Default: Australia/Brisbane
+})
+
+// Create Event
+createEvent({
+  summary: string,       // Event title
+  start: {
+    dateTime: string,    // ISO 8601 start time
+    timeZone?: string    // Start time timezone
+  },
+  end: {
+    dateTime: string,    // ISO 8601 end time
+    timeZone?: string    // End time timezone
+  },
+  description?: string,  // Optional event description
+  location?: string,     // Optional event location
+  attendees?: Array<{    // Optional attendees
+    email: string,
+    displayName?: string,
+    optional?: boolean
+  }>,
+  status?: 'confirmed' | 'tentative' | 'cancelled',
+  sendNotifications?: boolean
 })
 ```
 
