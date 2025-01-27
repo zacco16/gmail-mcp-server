@@ -30,5 +30,11 @@ export default {
       lines: 80,
       statements: 80
     }
-  }
+  },
+  // Run tests in a single process
+  maxWorkers: 1,
+  // Shorter timeout to fail fast
+  testTimeout: 5000,
+  // Force cleanup
+  forceExit: true
 };

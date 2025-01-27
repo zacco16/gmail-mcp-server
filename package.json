@@ -10,9 +10,10 @@
     "start": "node ./dist/index.js",
     "dev": "npm run build && npm start",
     "watch": "tsc --watch",
-    "test": "node --max_old_space_size=4096 node_modules/.bin/jest",
-    "test:watch": "node --max_old_space_size=4096 node_modules/.bin/jest --watch",
-    "test:coverage": "node --max_old_space_size=4096 node_modules/.bin/jest --coverage"
+    "test": "node --max_old_space_size=4096 node_modules/.bin/jest --runInBand",
+    "test:watch": "node --max_old_space_size=4096 node_modules/.bin/jest --watch --runInBand",
+    "test:coverage": "node --max_old_space_size=4096 node_modules/.bin/jest --coverage --runInBand",
+    "test:debug": "node --max_old_space_size=4096 node_modules/.bin/jest --detectOpenHandles --runInBand"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.0.1",
