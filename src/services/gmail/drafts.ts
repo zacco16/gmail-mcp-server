@@ -1,6 +1,45 @@
 import { gmail } from '../../config/auth.js';
+import { gmail_v1 } from 'googleapis';
 import { DraftEmailArgs, ListDraftsArgs, ReadDraftArgs, MessageResponse } from './types.js';
-import { DeleteDraftArgs } from '../../types/gmail.js';
+import { DeleteDraftArgs, UpdateDraftArgs } from '../../types/gmail.js';
+
+function extractBody(message: gmail_v1.Schema$Message): string {
+  if (message.payload?.body?.data) {
+    return Buffer.from(message.payload.body.data, 'base64').toString('utf-8');
+  }
+  const textPart = message.payload?.parts?.find(part => 
+    part.mimeType === 'text/plain' || part.mimeType === 'text/html'
+  );
+  return textPart?.body?.data 
+    ? Buffer.from(textPart.body.data, 'base64').toString('utf-8')
+    : '';
+}
+
+function determineIfHtml(message: gmail_v1.Schema$Message): boolean {
+  const contentType = message.payload?.headers
+    ?.find(h => h.name?.toLowerCase() === 'content-type')?.value || '';
+  return contentType.includes('text/html');
+}
+
+function createRawMessage(message: {
+  to?: string;
+  cc?: string;
+  bcc?: string;
+  subject?: string;
+  body: string;
+  isHtml?: boolean;
+}): string {
+  const raw = Buffer.from(
+    `${message.to ? `To: ${message.to}\n` : ''}` +
+    `${message.cc ? `Cc: ${message.cc}\n` : ''}` +
+    `${message.bcc ? `Bcc: ${message.bcc}\n` : ''}` +
+    `${message.subject ? `Subject: ${message.subject}\n` : ''}` +
+    `Content-Type: ${message.isHtml ? 'text/html' : 'text/plain'}; charset=utf-8\n\n` +
+    `${message.body}`
+  ).toString('base64');
+  
+  return raw.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
 
 export async function draftEmail({ to, cc, bcc, subject, body, isHtml }: DraftEmailArgs): Promise<MessageResponse> {
   try {
@@ -111,6 +150,65 @@ export async function readDraft({ draftId }: ReadDraftArgs): Promise<MessageResp
 
   } catch (error) {
     console.error('Read draft error:', error);
+    throw error;
+  }
+}
+
+export async function updateDraft({ 
+  draftId, 
+  to, 
+  cc, 
+  bcc, 
+  subject, 
+  body, 
+  isHtml 
+}: UpdateDraftArgs): Promise<MessageResponse> {
+  try {
+    // 1. Fetch existing draft
+    const existingDraft = await gmail.users.drafts.get({
+      userId: 'me',
+      id: draftId,
+      format: 'full'
+    });
+
+    if (!existingDraft.data.message || !existingDraft.data.message.payload) {
+      throw new Error('Draft message or payload not found');
+    }
+
+    const currentMessage = existingDraft.data.message;
+    const headers = currentMessage.payload?.headers || [];
+
+    // 2. Merge updates with existing content
+    const updatedMessage = {
+      to: to?.join(',') || headers.find(h => h.name?.toLowerCase() === 'to')?.value || undefined,
+      cc: cc?.join(',') || headers.find(h => h.name?.toLowerCase() === 'cc')?.value || undefined,
+      bcc: bcc?.join(',') || headers.find(h => h.name?.toLowerCase() === 'bcc')?.value || undefined,
+      subject: subject || headers.find(h => h.name?.toLowerCase() === 'subject')?.value || undefined,
+      body: body || extractBody(currentMessage) || '',
+      isHtml: isHtml ?? determineIfHtml(currentMessage)
+    };
+
+    // 3. Create new raw message
+    const raw = createRawMessage(updatedMessage);
+
+    // 4. Update draft
+    await gmail.users.drafts.update({
+      userId: 'me',
+      id: draftId,
+      requestBody: {
+        message: { raw }
+      }
+    });
+
+    return {
+      content: [{
+        type: "text",
+        text: `Draft ${draftId} updated successfully`
+      }]
+    };
+
+  } catch (error) {
+    console.error('Update draft error:', error);
     throw error;
   }
 }
