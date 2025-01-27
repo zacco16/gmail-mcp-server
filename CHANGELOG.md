@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-01-27
+
+### Added
+- Calendar event creation functionality
+  - `createEvent` tool for adding new calendar events
+  - Comprehensive event validation
+  - Support for optional event parameters
+  - Timezone and attendee management
+- Enhanced calendar service capabilities
+- Robust input validation for event creation
+
+### Changed
+- Expanded calendar service type definitions
+- Updated tools and services to support event creation
+
 ## [1.4.0] - 2025-01-27
 
 ### Added

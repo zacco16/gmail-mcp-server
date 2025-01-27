@@ -1,17 +1,25 @@
 import { calendar } from '../../config/auth.js';
 import { CALENDAR_CONSTANTS, DEFAULTS } from '../../config/constants.js';
-import { ListEventsArgs, ReadEventArgs, CalendarResponse } from './types.js';
+import { 
+  ListEventsArgs, 
+  ReadEventArgs, 
+  CalendarResponse, 
+  CreateEventArgs, 
+  EventStatus,
+  ListEventsFunction,
+  ReadEventFunction
+} from './types.js';
 import { DateTime } from 'luxon';
 import { GaxiosError } from 'gaxios';
 import { calendar_v3 } from 'googleapis';
 
-export async function listEvents({ 
+export const listEvents: ListEventsFunction = async ({ 
   maxResults = DEFAULTS.CALENDAR_MAX_RESULTS,
   timeMin,
   timeMax,
   query,
   timeZone = DEFAULTS.DEFAULT_TIMEZONE 
-}: ListEventsArgs = {}): Promise<CalendarResponse> {
+}: ListEventsArgs = {}): Promise<CalendarResponse> => {
   try {
     const now = DateTime.now().setZone(timeZone);
     const defaultTimeMin = now.toISO();
@@ -62,12 +70,12 @@ export async function listEvents({
     console.error('List events error:', error);
     throw error;
   }
-}
+};
 
-export async function readEvent({ 
+export const readEvent: ReadEventFunction = async ({ 
   eventId, 
   timeZone = DEFAULTS.DEFAULT_TIMEZONE 
-}: ReadEventArgs): Promise<CalendarResponse> {
+}: ReadEventArgs): Promise<CalendarResponse> => {
   try {
     const response = await calendar.events.get({
       calendar: 'primary',
@@ -113,6 +121,98 @@ export async function readEvent({
       };
     }
     console.error('Read event error:', error);
+    throw error;
+  }
+};
+
+export async function createEvent({ 
+  summary, 
+  description, 
+  location, 
+  start, 
+  end, 
+  timeZone = DEFAULTS.DEFAULT_TIMEZONE,
+  attendees = [],
+  sendNotifications = false,
+  status = EventStatus.CONFIRMED
+}: CreateEventArgs): Promise<CalendarResponse> {
+  try {
+    // Validate event duration
+    const startDt = DateTime.fromISO(start.dateTime, { zone: timeZone });
+    const endDt = DateTime.fromISO(end.dateTime, { zone: timeZone });
+
+    // Check event duration constraints
+    const eventDurationMinutes = endDt.diff(startDt, 'minutes').minutes;
+    if (eventDurationMinutes < CALENDAR_CONSTANTS.MIN_EVENT_LENGTH) {
+      throw new Error(`Event must be at least ${CALENDAR_CONSTANTS.MIN_EVENT_LENGTH} minute(s) long`);
+    }
+    if (eventDurationMinutes > CALENDAR_CONSTANTS.MAX_EVENT_LENGTH * 60) {
+      throw new Error(`Event cannot be longer than ${CALENDAR_CONSTANTS.MAX_EVENT_LENGTH} hours`);
+    }
+
+    // Validate number of attendees
+    if (attendees.length > CALENDAR_CONSTANTS.MAX_ATTENDEES) {
+      throw new Error(`Maximum of ${CALENDAR_CONSTANTS.MAX_ATTENDEES} attendees allowed`);
+    }
+
+    // Validate timezone
+    if (!CALENDAR_CONSTANTS.VALID_TIMEZONES.includes(timeZone)) {
+      throw new Error(`Invalid timezone. Supported timezones: ${CALENDAR_CONSTANTS.VALID_TIMEZONES.join(', ')}`);
+    }
+
+    // Prepare event object
+    const event: calendar_v3.Schema$Event = {
+      summary,
+      description,
+      location,
+      start: {
+        dateTime: start.dateTime,
+        timeZone
+      },
+      end: {
+        dateTime: end.dateTime,
+        timeZone
+      },
+      status: status as calendar_v3.Schema$Event['status'],
+      attendees: attendees.map(attendee => ({
+        email: attendee.email,
+        displayName: attendee.displayName,
+        optional: attendee.optional
+      }))
+    };
+
+    // Create event
+    const response = await calendar.events.insert({
+      calendarId: 'primary',
+      requestBody: event,
+      sendNotifications
+    });
+
+    // Construct response
+    return {
+      content: [{
+        type: "text",
+        text: `Event created successfully. Event ID: ${response.data.id}`
+      }]
+    };
+
+  } catch (error) {
+    console.error('Create event error:', error);
+    
+    // Handle specific error types
+    if (error instanceof Error) {
+      // Check for specific error scenarios
+      if (error.message.includes('insufficient permissions')) {
+        return {
+          content: [{
+            type: "text",
+            text: "Error: Insufficient permissions to create event"
+          }],
+          isError: true
+        };
+      }
+    }
+
     throw error;
   }
 }
