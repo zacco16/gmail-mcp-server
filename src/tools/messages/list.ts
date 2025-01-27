@@ -3,7 +3,7 @@ import { ListMessagesArgs } from '../../services/gmail/types.js';
 import { DEFAULTS } from '../../config/constants.js';
 
 export const LIST_MESSAGES_TOOL = {
-  name: "list",
+  name: "listEmails",
   description: "List Gmail messages",
   inputSchema: {
     type: "object",

@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-01-27
+
+### Changed
+- Renamed core email tool interfaces for better clarity:
+  - `list` -> `listEmails`
+  - `read` -> `readEmail`
+  - `draft` -> `draftEmail`
+  - `send` -> `sendEmail`
+- Updated documentation to reflect new tool names
+
+### Breaking Changes
+- Email tool name changes require updates to any client implementations
+- Previous tool names are no longer supported
+
 ## [1.1.0] - 2025-01-25
 
 ### Added

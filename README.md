@@ -99,7 +99,7 @@ gmail-mcp-server/
 
 #### List Messages
 ```typescript
-list({
+listEmails({
   maxResults?: number,    // Default: 10
   query?: string,         // Gmail search query
   labelIds?: string[],    // Filter by labels
@@ -109,7 +109,7 @@ list({
 
 #### Read Message
 ```typescript
-read({
+readEmail({
   messageId: string    // Message ID to fetch
 })
 ```
@@ -129,7 +129,7 @@ readDraft({
 })
 
 // Create Draft
-draft({
+draftEmail({
   to: string[],
   subject: string,
   body: string,
@@ -157,7 +157,7 @@ deleteDraft({
 
 #### Send Email
 ```typescript
-send({
+sendEmail({
   to: string[],
   subject: string,
   body: string,
