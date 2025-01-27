@@ -19,10 +19,17 @@
     - [ ] Test listEvents interface
     - [ ] Test readEvent functionality
   - Draft Tools
-    - [ ] Test listDrafts functionality
-    - [ ] Test readDraft operations
-    - [ ] Test deleteDraft operations
-    - [ ] Test updateDraft operations
+    - ✓ Test listDrafts functionality
+    - ✓ Test readDraft operations
+    - ✓ Test deleteDraft operations
+      - Unit tests for deletion scenarios
+      - Error handling validation
+      - Input parameter checks
+    - ✓ Test updateDraft operations
+      - Unit tests for various update scenarios
+      - Partial update support
+      - Error handling validation
+      - Input parameter checks
 
 - Services Layer
   - Gmail Service

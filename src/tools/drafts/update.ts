@@ -52,7 +52,9 @@ export async function handleUpdateDraft(args: Record<string, unknown>): Promise<
       bcc: args.bcc ? (args.bcc as string[]) : undefined,
       subject: args.subject ? (args.subject as string) : undefined,
       body: args.body ? (args.body as string) : undefined,
-      isHtml: args.isHtml ? (args.isHtml as boolean) : undefined
+      // Explicitly set isHtml to false if not provided
+      isHtml: args.isHtml !== undefined ? (args.isHtml as boolean) : 
+              (args.body ? false : undefined)
     };
     
     return await updateDraft(typedArgs);

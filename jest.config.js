@@ -36,5 +36,7 @@ export default {
   // Shorter timeout to fail fast
   testTimeout: 5000,
   // Force cleanup
-  forceExit: true
+  forceExit: true,
+  // Suppress console errors
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js']
 };
