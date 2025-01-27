@@ -8,6 +8,20 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { SERVER_CONFIG } from './config/constants.js';
 import { TOOLS, TOOL_HANDLERS } from './tools/index.js';
+import { isGmailTool } from './types/gmail.js';
+
+// Validate tool configuration
+async function validateTools() {
+  for (const tool of TOOLS) {
+    if (!isGmailTool(tool)) {
+      throw new Error(`Invalid tool configuration: ${tool?.name || 'unnamed tool'}`);
+    }
+    
+    if (!TOOL_HANDLERS[tool.name]) {
+      throw new Error(`Missing handler for tool: ${tool.name}`);
+    }
+  }
+}
 
 // Server definition
 const server = new Server(
@@ -52,9 +66,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 // Start server
 async function runServer() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error("Gmail MCP Server running on stdio");
+  try {
+    await validateTools();  // Add validation before server starts
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    console.error("Gmail MCP Server running on stdio");
+  } catch (error) {
+    console.error("Server initialization failed:", error);
+    throw error;  // Re-throw to trigger process.exit(1)
+  }
 }
 
 runServer().catch((error) => {

@@ -82,6 +82,34 @@ export interface MessageResponse {
   isError?: boolean;
 }
 
+// Tool interfaces
+export interface GmailToolSchema {
+  type: "object";
+  properties: Record<string, unknown>;
+  required?: string[];
+}
+
+export interface GmailTool {
+  name: string;
+  description: string;
+  inputSchema: GmailToolSchema;
+}
+
+export function isGmailTool(value: unknown): value is GmailTool {
+  const tool = value as Partial<GmailTool>;
+  return (
+    typeof tool === 'object' &&
+    tool !== null &&
+    typeof tool.name === 'string' &&
+    typeof tool.description === 'string' &&
+    tool.inputSchema !== undefined &&
+    typeof tool.inputSchema === 'object' &&
+    tool.inputSchema !== null &&
+    tool.inputSchema.type === 'object' &&
+    typeof tool.inputSchema.properties === 'object'
+  );
+}
+
 export function isDraftEmailArgs(args: Record<string, unknown>): args is DraftEmailArgs {
   const a = args as Partial<DraftEmailArgs>;
   return (
