@@ -1,6 +1,6 @@
-import { GmailService } from '../services/gmail.js';
-import { ListMessagesArgs } from '../types/gmail.js';
-import { DEFAULTS } from '../config/constants.js';
+import { listMessages } from '../../services/gmail/messages.js';
+import { ListMessagesArgs } from '../../services/gmail/types.js';
+import { DEFAULTS } from '../../config/constants.js';
 
 export const LIST_MESSAGES_TOOL = {
   name: "list",
@@ -36,5 +36,5 @@ export const LIST_MESSAGES_TOOL = {
 };
 
 export async function handleListMessages(args: ListMessagesArgs = { maxResults: DEFAULTS.LIST_MAX_RESULTS }) {
-  return await GmailService.listMessages(args);
+  return await listMessages(args);
 }

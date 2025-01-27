@@ -9,7 +9,12 @@ A Model Context Protocol (MCP) server implementation for Gmail API integration, 
   - List emails with advanced filtering
   - Read specific emails with full content
   - Create and send new emails
-  - Draft email management
+- **Draft Management**
+  - Create new drafts
+  - List existing drafts
+  - Read draft content
+  - Update draft content and recipients
+  - Delete drafts
 - **Calendar Operations**
   - List upcoming calendar events
   - Read detailed event information
@@ -76,12 +81,18 @@ A Model Context Protocol (MCP) server implementation for Gmail API integration, 
 ```
 gmail-mcp-server/
 ├── src/
-│   ├── config/       # Configuration and setup
-│   ├── services/     # Core business logic
-│   ├── tools/        # MCP tool implementations
-│   └── types/        # TypeScript definitions
-├── dist/            # Compiled JavaScript
-└── tests/           # Test files (pending)
+│   ├── config/         # Configuration and setup
+│   ├── services/       # Core business logic
+│   │   ├── gmail/      # Gmail services
+│   │   └── calendar/   # Calendar services
+│   ├── tools/          # MCP tool implementations
+│   │   ├── calendar/   # Calendar tools
+│   │   ├── drafts/     # Draft management tools
+│   │   └── messages/   # Email tools
+│   ├── types/          # TypeScript definitions
+│   └── index.ts        # Server entry point
+├── dist/              # Compiled JavaScript
+└── tests/             # Test files (pending)
 ```
 
 ### API Interface
@@ -103,8 +114,21 @@ read({
 })
 ```
 
-#### Create Draft
+#### Draft Operations
 ```typescript
+// List Drafts
+listDrafts({
+  maxResults?: number,    // Default: 10
+  query?: string,         // Search query
+  verbose?: boolean       // Include details
+})
+
+// Read Draft
+readDraft({
+  draftId: string        // Draft ID to fetch
+})
+
+// Create Draft
 draft({
   to: string[],
   subject: string,
@@ -112,6 +136,22 @@ draft({
   cc?: string[],
   bcc?: string[],
   isHtml?: boolean
+})
+
+// Update Draft
+updateDraft({
+  draftId: string,       // Draft ID to update
+  to?: string[],         // New recipients
+  cc?: string[],         // New CC recipients
+  bcc?: string[],         // New BCC recipients
+  subject?: string,      // New subject
+  body?: string,         // New body content
+  isHtml?: boolean       // Content type flag
+})
+
+// Delete Draft
+deleteDraft({
+  draftId: string        // Draft ID to delete
 })
 ```
 

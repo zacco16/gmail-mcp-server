@@ -1,5 +1,5 @@
-import { CalendarService } from '../../services/calendar/index.js';
-import { ListEventsArgs } from '../../types/calendar.js';
+import { listEvents } from '../../services/calendar/events.js';
+import { ListEventsArgs } from '../../services/calendar/types.js';
 import { DEFAULTS } from '../../config/constants.js';
 
 export const LIST_EVENTS_TOOL = {
@@ -33,5 +33,5 @@ export const LIST_EVENTS_TOOL = {
 };
 
 export async function handleListEvents(args: ListEventsArgs = { maxResults: DEFAULTS.CALENDAR_MAX_RESULTS }) {
-  return await CalendarService.listEvents(args);
+  return await listEvents(args);
 }
