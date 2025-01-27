@@ -1,0 +1,56 @@
+name: Unit Tests
+
+# Trigger on pull requests to main and pushes to main
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    # Use latest Ubuntu 
+    runs-on: ubuntu-latest
+
+    # Test across different Node.js versions for compatibility
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+
+    steps:
+    # Checkout the repository
+    - uses: actions/checkout@v3
+
+    # Set up Node.js
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    # Install dependencies
+    - name: Install Dependencies
+      run: npm ci
+
+    # Run tests with coverage
+    - name: Run Tests
+      run: npm test
+
+    # Upload coverage to GitHub
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        fail_ci_if_error: true
+
+  # Optional: Check code quality
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+    - run: npm ci
+    - name: Run ESLint
+      run: npm run lint || true  # Allow lint to not break the build

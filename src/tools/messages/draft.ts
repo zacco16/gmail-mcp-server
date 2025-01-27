@@ -11,7 +11,7 @@ function isDraftEmailArgs(args: unknown): args is DraftEmailArgs {
 }
 
 export const DRAFT_EMAIL_TOOL = {
-  name: "draft",
+  name: "draftEmail",
   description: "Create a Gmail draft message",
   inputSchema: {
     type: "object",

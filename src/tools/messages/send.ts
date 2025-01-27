@@ -11,7 +11,7 @@ function isSendEmailArgs(args: unknown): args is SendEmailArgs {
 }
 
 export const SEND_EMAIL_TOOL = {
-  name: "send",
+  name: "sendEmail",
   description: "Send a Gmail message",
   inputSchema: {
     type: "object",

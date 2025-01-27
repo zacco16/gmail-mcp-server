@@ -19,12 +19,16 @@ export const READ_DRAFT_TOOL = {
 
 export async function handleReadDraft(args: Record<string, unknown>) {
   try {
+    // Explicit type and presence checking
+    if (!args.draftId || typeof args.draftId !== 'string') {
+      throw new Error('Invalid or missing draft ID');
+    }
+
     const typedArgs: ReadDraftArgs = {
-      draftId: args.draftId as string
+      draftId: args.draftId
     };
     return await readDraft(typedArgs);
   } catch (error) {
-    console.error('Read draft error:', error);
     return {
       content: [{
         type: "text",

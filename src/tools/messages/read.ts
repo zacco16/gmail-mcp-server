@@ -2,7 +2,7 @@ import { readMessage } from '../../services/gmail/messages.js';
 import { ReadMessageArgs, MessageResponse } from '../../services/gmail/types.js';
 
 export const READ_MESSAGE_TOOL = {
-  name: "read",
+  name: "readEmail",
   description: "Read a specific Gmail message",
   inputSchema: {
     type: "object",
