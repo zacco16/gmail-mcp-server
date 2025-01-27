@@ -39,3 +39,7 @@ export interface ListDraftsArgs {
   query?: string;
   verbose?: boolean;
 }
+
+export interface ReadDraftArgs {
+  draftId: string;
+}

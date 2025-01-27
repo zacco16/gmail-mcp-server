@@ -5,6 +5,7 @@ import { SEND_EMAIL_TOOL, handleSendEmail } from './messages/send.js';
 import { LIST_EVENTS_TOOL, handleListEvents } from './calendar/list.js';
 import { READ_EVENT_TOOL, handleReadEvent } from './calendar/read.js';
 import { LIST_DRAFTS_TOOL, handleListDrafts } from './drafts/list.js';
+import { READ_DRAFT_TOOL, handleReadDraft } from './drafts/read.js';
 
 export const TOOLS = [
   LIST_MESSAGES_TOOL,
@@ -13,7 +14,8 @@ export const TOOLS = [
   SEND_EMAIL_TOOL,
   LIST_EVENTS_TOOL,
   READ_EVENT_TOOL,
-  LIST_DRAFTS_TOOL
+  LIST_DRAFTS_TOOL,
+  READ_DRAFT_TOOL
 ];
 
 export const TOOL_HANDLERS: Record<string, (args: Record<string, unknown>) => Promise<any>> = {
@@ -23,5 +25,6 @@ export const TOOL_HANDLERS: Record<string, (args: Record<string, unknown>) => Pr
   [SEND_EMAIL_TOOL.name]: handleSendEmail,
   [LIST_EVENTS_TOOL.name]: handleListEvents,
   [READ_EVENT_TOOL.name]: handleReadEvent,
-  [LIST_DRAFTS_TOOL.name]: handleListDrafts
+  [LIST_DRAFTS_TOOL.name]: handleListDrafts,
+  [READ_DRAFT_TOOL.name]: handleReadDraft
 };
