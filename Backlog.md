@@ -3,11 +3,11 @@
 ## High Priority
 
 ### Core Functionality
-- Draft email editing capabilities
-  - Ability to modify existing drafts
-  - Support for updating subject, body, and recipients
-  - Handle HTML formatting properly
-  - Add endpoints for listing and deleting drafts
+- Enhanced Draft Features
+  - Draft templates support
+  - Scheduled drafts
+  - Draft categories/labels
+  - Batch draft operations
 
 ### Calendar Integration (In Progress)
 - Complete Google Calendar API integration
@@ -44,6 +44,7 @@
   - Add Calendar API mock responses
   - Test error handling scenarios
   - Add integration tests for critical paths
+  - Add draft operation test coverage
 
 ## Medium Priority
 
@@ -69,6 +70,7 @@
   - Create postman collection
   - Add code examples for common operations
   - Document calendar integration features (✓ completed)
+  - Document draft management features (✓ completed)
 
 ## Future Enhancements
 
@@ -85,10 +87,12 @@
   - Add message metadata caching
   - Cache calendar event data
   - Optimize API calls
+  - Cache draft metadata
 - Add batch operations support
   - Implement bulk message operations
   - Add parallel processing where applicable
   - Support batch calendar operations
+  - Support batch draft operations
 
 ## Technical Debt
 - Refactor authentication flow
@@ -97,3 +101,4 @@
 - Standardize logging format
 - Add health check endpoints
 - Improve calendar sync error handling
+- Refine draft update error handling

@@ -14,7 +14,10 @@ This is a Gmail Model Context Protocol (MCP) server implementation that enables 
 ## Key Components
 
 ### Core Services
-- **GmailService** (`src/services/gmail.ts`): Central service handling all Gmail operations
+- **GmailService** (`src/services/gmail/*.ts`): 
+  - Message operations (list, read, send)
+  - Draft management (create, read, update, delete)
+  - Email formatting and validation
 - **CalendarService** (`src/services/calendar/index.ts`): Handles Google Calendar operations
   - Event listing with full details
   - Event reading with timezone support
@@ -25,17 +28,32 @@ This is a Gmail Model Context Protocol (MCP) server implementation that enables 
 - **Constants** (`src/config/constants.ts`): Configuration values and constraints
 
 ### Tools Implementation
-- List Messages (`src/tools/list.ts`)
-- Read Message (`src/tools/read.ts`)
-- Draft Email (`src/tools/draft.ts`)
-- Send Email (`src/tools/send.ts`)
-- Calendar Events:
-  - List Events (`src/tools/calendar/list.ts`)
+- Message Operations (`src/tools/messages/`):
+  - List Messages (`list.ts`)
+  - Read Message (`read.ts`)
+  - Draft Email (`draft.ts`)
+  - Send Email (`send.ts`)
+- Draft Management (`src/tools/drafts/`):
+  - List Drafts (`list.ts`)
+    - Supports search and filtering
+    - Shows draft IDs for reference
+  - Read Draft (`read.ts`)
+    - Full draft content retrieval
+    - Includes all recipients and headers
+  - Update Draft (`update.ts`)
+    - Partial updates supported
+    - Preserves unchanged content
+    - Handles HTML/plain text
+  - Delete Draft (`delete.ts`)
+    - Safe draft removal
+    - Confirms deletion success
+- Calendar Operations (`src/tools/calendar/`):
+  - List Events (`list.ts`)
     - Supports search and filtering
     - Handles timezone conversions
     - Shows event IDs for reference
     - Includes status and timing
-  - Read Event Details (`src/tools/calendar/read.ts`)
+  - Read Event Details (`read.ts`)
     - Full event information retrieval
     - Supports timezone specification
     - Includes organizer details
@@ -86,11 +104,11 @@ This is a Gmail Model Context Protocol (MCP) server implementation that enables 
    - Add corresponding types
 
 ## Current Backlog Status
-- Draft email editing capabilities needed
+- Event creation and modification pending
 - Testing framework to be implemented
 - Email configuration and signatures pending
-- Event creation and modification pending
 - Recurring events handling needed
+- Calendar sync implementation needed
 
 ## Development Guidelines
 1. Maintain type safety throughout
@@ -110,6 +128,8 @@ This is a Gmail Model Context Protocol (MCP) server implementation that enables 
 8. Event IDs must be preserved and visible in list output
 9. DateTime format consistency required
 10. Event details should be complete for iOS sync
+11. Draft updates must preserve unmodified content
+12. Content-Type handling for HTML drafts
 
 ## Testing Considerations
 - Unit tests pending implementation
