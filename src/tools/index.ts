@@ -9,6 +9,8 @@ import { LIST_DRAFTS_TOOL, handleListDrafts } from './drafts/list.js';
 import { READ_DRAFT_TOOL, handleReadDraft } from './drafts/read.js';
 import { DELETE_DRAFT_TOOL, handleDeleteDraft } from './drafts/delete.js';
 import { UPDATE_DRAFT_TOOL, handleUpdateDraft } from './drafts/update.js';
+import { LIST_CHAT_MESSAGES_TOOL, handleListChatMessages } from './chat/list.js';
+import { SEND_CHAT_MESSAGE_TOOL, handleSendChatMessage } from './chat/send.js';
 
 export const TOOLS = [
   LIST_MESSAGES_TOOL,
@@ -21,7 +23,9 @@ export const TOOLS = [
   LIST_DRAFTS_TOOL,
   READ_DRAFT_TOOL,
   DELETE_DRAFT_TOOL,
-  UPDATE_DRAFT_TOOL
+  UPDATE_DRAFT_TOOL,
+  LIST_CHAT_MESSAGES_TOOL,
+  SEND_CHAT_MESSAGE_TOOL
 ];
 
 export const TOOL_HANDLERS: Record<string, (args: Record<string, unknown>) => Promise<any>> = {
@@ -35,5 +39,7 @@ export const TOOL_HANDLERS: Record<string, (args: Record<string, unknown>) => Pr
   [LIST_DRAFTS_TOOL.name]: handleListDrafts,
   [READ_DRAFT_TOOL.name]: handleReadDraft,
   [DELETE_DRAFT_TOOL.name]: handleDeleteDraft,
-  [UPDATE_DRAFT_TOOL.name]: handleUpdateDraft
+  [UPDATE_DRAFT_TOOL.name]: handleUpdateDraft,
+  [LIST_CHAT_MESSAGES_TOOL.name]: handleListChatMessages,
+  [SEND_CHAT_MESSAGE_TOOL.name]: handleSendChatMessage
 };
