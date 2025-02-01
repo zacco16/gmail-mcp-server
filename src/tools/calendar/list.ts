@@ -1,4 +1,4 @@
-import { listEvents } from '../../services/calendar/events.js';
+import { CalendarService } from '../../services/calendar/events.js';
 import { ListEventsArgs } from '../../services/calendar/types.js';
 import { DEFAULTS } from '../../config/constants.js';
 
@@ -33,5 +33,5 @@ export const LIST_EVENTS_TOOL = {
 };
 
 export async function handleListEvents(args: ListEventsArgs = { maxResults: DEFAULTS.CALENDAR_MAX_RESULTS }) {
-  return await listEvents(args);
+  return await CalendarService.listEvents(args);
 }
