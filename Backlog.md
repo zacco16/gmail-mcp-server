@@ -9,6 +9,24 @@
   - ✓ Basic test patterns implemented
   - ✓ Performance issues resolved
 
+- Services Layer Testing (Immediate Priority)
+  - Calendar Service
+    - [ ] Complete Calendar Events service tests
+      - Event listing implementation
+      - Error handling scenarios
+      - Response formatting
+    - [ ] Event service tests
+    - [ ] Timezone handling tests
+    - [ ] Event creation service tests
+  - Gmail Service
+    - [ ] Draft management service tests
+    - [ ] Email sending service tests
+  - Error Handling Layer
+    - [ ] API error scenarios
+    - [ ] Rate limit handling
+    - [ ] Network failure tests
+    - [ ] Authentication failure tests
+
 - Tools Layer Testing
   - Message Tools
     - ✓ Test listEmails interface
@@ -28,20 +46,6 @@
     - ✓ Test updateDraft operations
       - Partial update support testing
       - Error scenario validation
-
-- Services Layer Testing (Next Priority)
-  - Gmail Service
-    - [ ] Draft management service tests
-    - [ ] Email sending service tests
-  - Calendar Service
-    - [ ] Event service tests
-    - [ ] Timezone handling tests
-    - [ ] Event creation service tests
-  - Error Handling Layer
-    - [ ] API error scenarios
-    - [ ] Rate limit handling
-    - [ ] Network failure tests
-    - [ ] Authentication failure tests
 
 - Test Coverage Expansion
   - [ ] Add comprehensive edge case coverage

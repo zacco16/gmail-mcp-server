@@ -21,21 +21,22 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.REDIRECT_URI
 );
 
-// API scopes for both Gmail and Calendar
+// API scopes for Gmail, Calendar and Chat
 const SCOPES = [
   'https://www.googleapis.com/auth/gmail.readonly',
   'https://www.googleapis.com/auth/gmail.modify',
   'https://www.googleapis.com/auth/gmail.compose',
   'https://www.googleapis.com/auth/calendar',
-  'https://www.googleapis.com/auth/calendar.events'
+  'https://www.googleapis.com/auth/calendar.events',
+  'https://www.googleapis.com/auth/chat.messages'
 ];
 
 app.get('/auth', (req, res) => {
   const authUrl = oauth2Client.generateAuthUrl({
-    access_type: 'offline',  // This is crucial for getting a refresh token
+    access_type: 'offline',
     scope: SCOPES,
-    prompt: 'consent',  // Forces consent screen to ensure we get a refresh token
-    include_granted_scopes: true  // Enables incremental auth
+    prompt: 'select_account consent',  // Changed this line to force both account selection and consent
+    include_granted_scopes: true
   });
   res.redirect(authUrl);
 });
