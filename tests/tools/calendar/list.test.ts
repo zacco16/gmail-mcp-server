@@ -17,13 +17,14 @@ describe('List Events Tool', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    (calendarService.listEvents as jest.MockedFunction<typeof calendarService.listEvents>)
+    // Mock both the class method and the exported function
+    jest.spyOn(calendarService.CalendarService, 'listEvents')
       .mockResolvedValue(mockEvents);
   });
 
   it('returns events with default parameters', async () => {
     const result = await handleListEvents();
-    expect(calendarService.listEvents).toHaveBeenCalledWith({ 
+    expect(calendarService.CalendarService.listEvents).toHaveBeenCalledWith({ 
       maxResults: DEFAULTS.CALENDAR_MAX_RESULTS 
     });
     expect(result).toEqual(mockEvents);
@@ -39,13 +40,13 @@ describe('List Events Tool', () => {
     };
     
     const result = await handleListEvents(params);
-    expect(calendarService.listEvents).toHaveBeenCalledWith(params);
+    expect(calendarService.CalendarService.listEvents).toHaveBeenCalledWith(params);
     expect(result).toEqual(mockEvents);
   });
 
   it('handles service errors', async () => {
     const error = new Error('API Error');
-    (calendarService.listEvents as jest.MockedFunction<typeof calendarService.listEvents>)
+    jest.spyOn(calendarService.CalendarService, 'listEvents')
       .mockRejectedValue(error);
     
     await expect(handleListEvents()).rejects.toThrow('API Error');
