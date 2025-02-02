@@ -63,7 +63,7 @@ export class CalendarService {
         output += '\n\n';
       }
 
-      console.log(`Retrieved ${events.length} events`);
+      console.error(`Retrieved ${events.length} events`); // Changed from console.log to console.error
       
       return {
         content: [{ 
